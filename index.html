@@ -620,10 +620,10 @@
                     <span class="metric-icon">💰</span>
                     总资产管理规模
                 </div>
-                    <div class="metric-value" id="aum-value">¥10,500,000</div>
+                    <div class="metric-value" id="aum-value">¥206695</div>
                     <div class="metric-change change-positive">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="aum-change">5.2%</span>
+                        <span id="aum-change">0%</span>
                     </div>
                 </div>
                 
@@ -632,10 +632,10 @@
                     <span class="metric-icon">🏦</span>
                     融资总额
                 </div>
-                    <div class="metric-value" id="financing-value">¥5,200,000</div>
+                    <div class="metric-value" id="financing-value">¥134160</div>
                     <div class="metric-change change-positive">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="financing-change">3.1%</span>
+                        <span id="financing-change">0%</span>
                     </div>
                 </div>
                 
@@ -644,10 +644,10 @@
                     <span class="metric-icon">💼</span>
                     资本总额
                 </div>
-                    <div class="metric-value" id="capital-value">¥8,300,000</div>
+                    <div class="metric-value" id="capital-value">¥1000</div>
                     <div class="metric-change change-positive">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="capital-change">2.8%</span>
+                        <span id="capital-change">0%</span>
                     </div>
                 </div>
                 
@@ -656,10 +656,10 @@
                     <span class="metric-icon">👥</span>
                     客户数量
                 </div>
-                    <div class="metric-value" id="clients-value">156</div>
+                    <div class="metric-value" id="clients-value">9</div>
                     <div class="metric-change change-positive">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="clients-change">12</span>
+                        <span id="clients-change">0</span>
                     </div>
                 </div>
             </div>
@@ -1175,24 +1175,28 @@
                 } catch (e) {
                     console.error('加载本地图表数据失败，使用默认数据:', e);
                     chartData = [
-                        { date: '2023-01-15', financing: 300000, capital: 400000 },
-                        { date: '2023-02-15', financing: 350000, capital: 450000 },
-                        { date: '2023-03-15', financing: 400000, capital: 500000 },
-                        { date: '2023-04-15', financing: 450000, capital: 550000 },
-                        { date: '2023-05-15', financing: 500000, capital: 600000 },
-                        { date: '2023-06-15', financing: 520000, capital: 630000 }
-                    ];
+                        { date: '2020-01-28', financing: 10750, capital: 9376 },
+            { date: '2020-08-25', financing: 22600, capital: 235 },
+            { date: '2023-03-01', financing: 43029, capital: 708 },
+            { date: '2024-12-01', financing: 70129, capital: 32176 },
+            { date: '2025-03-01', financing: 145515, capital: 157399 },
+            { date: '2025-04-01', financing: 126792, capital: 628218 },
+            { date: '2025-11-29', financing: 134160, capital: 1000 },
+            { date: '2025-12-10', financing: 206695, capital: -5000 }
+        ];
                 }
             } else {
                 console.log('没有本地保存的图表数据，使用默认数据');
                 chartData = [
-                    { date: '2023-01-15', financing: 300000, capital: 400000 },
-                    { date: '2023-02-15', financing: 350000, capital: 450000 },
-                    { date: '2023-03-15', financing: 400000, capital: 500000 },
-                    { date: '2023-04-15', financing: 450000, capital: 550000 },
-                    { date: '2023-05-15', financing: 500000, capital: 600000 },
-                    { date: '2023-06-15', financing: 520000, capital: 630000 }
-                ];
+         { date: '2020-01-28', financing: 10750, capital: 9376 },
+            { date: '2020-08-25', financing: 22600, capital: 235 },
+            { date: '2023-03-01', financing: 43029, capital: 708 },
+            { date: '2024-12-01', financing: 70129, capital: 32176 },
+            { date: '2025-03-01', financing: 145515, capital: 157399 },
+            { date: '2025-04-01', financing: 126792, capital: 628218 },
+            { date: '2025-11-29', financing: 134160, capital: 1000 },
+            { date: '2025-12-10', financing: 206695, capital: -5000 }
+        ];
             }
             
             // 图表配置选项
