@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金至投资-专业金融可视化投资平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* ===== 全局样式 ===== */
+        :root {
+            /* 专业金融配色方案 */
+            --primary-dark: #0a1f44;
+            --primary: #1a3e72;
+            --secondary: #3d5a80;
+            --accent: #00b4d8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #2ecc71;
+            --border: rgba(0,0,0,0.08);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-width: 1200px;
+        }
+
+        /* ===== 布局组件 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            margin: 4rem 0;
+        }
+
+        /* ===== 头部样式 ===== */
+        header {
+            background: rgba(255, 255, 255, 0.98);
+            color: var(--primary-dark);
+            padding: 1rem 2rem;
+            height: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 1px;
+            color: var(--primary-dark);
+        }
+        
+        .logo span {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-left: 1rem;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+
+        /* ===== 数据卡片 ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-title {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .metric-icon {
+            font-size: 1rem;
+        }
+        
+
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .metric-change {
+            font-size: 1.1rem;
+            margin-top: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .change-positive {
+            color: var(--success);
+        }
+        
+        .change-negative {
+            color: #e74c3c;
+        }
+
+        /* ===== 图表区域 ===== */
+        .chart-container {
+            width: 100%;
+            height: 500px;
+            margin: 2rem 0;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+        }
+
+        /* ===== 公告板块 ===== */
+        .finance-announcements {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: linear-gradient(to bottom, rgba(245,247,250,0.8), rgba(245,247,250,0.4));
+            border-radius: 12px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .title-icon {
+            font-size: 1.8rem;
+            margin-right: 1rem;
+        }
+        
+        /* 标题图标颜色 */
+        .fa-chart-line {
+            color: #1a73e8 !important; /* 数据分析蓝色 */
+        }
+        
+        .fa-bullhorn {
+            color: #FF6B6B !important; /* 公告红色 */
+        }
+        
+        .fa-tasks {
+            color: #4ECDC4 !important; /* 流程青色 */
+        }
+        
+        .fa-credit-card {
+            color: #FFA500 !important; /* 支付橙色 */
+        }
+
+        .finance-docs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .finance-doc {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(10,31,68,0.08);
+            border-left: 4px solid var(--primary);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .finance-doc:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(10,31,68,0.12);
+        }
+
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .doc-title {
+            color: var(--primary-dark);
+            font-size: 1.4rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .doc-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* 文档图标颜色 */
+        .fa-file-contract {
+            color: #8E44AD !important; /* 合同紫色 */
+        }
+        
+        .fa-chart-bar {
+            color: #16A085 !important; /* 图表青色 */
+        }
+
+        .doc-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .doc-desc {
+            color: var(--dark);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .doc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-date {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .doc-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a73e8;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            gap: 0.5rem;
+            min-width: 100px;
+        }
+        
+        .doc-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(26,62,114,0.3);
+        }
+
+        /* ===== 投资流程版块 ===== */
+        .finance-process {
+            margin: 4rem 0;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .process-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .process-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        .process-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .process-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        /* 流程图标颜色 */
+        .fa-info-circle {
+            color: #3498DB !important; /* 信息蓝色 */
+        }
+        
+        .fa-clipboard-check {
+            color: #E74C3C !important; /* 确认红色 */
+        }
+        
+        .fa-check-circle {
+            color: #27AE60 !important; /* 完成绿色 */
+        }
+        
+        .fa-sync-alt {
+            color: #F39C12 !important; /* 更新橙色 */
+        }
+
+        .process-title {
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .process-desc {
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .process-button {
+            background: #1a73e8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .process-button:hover {
+            background: #1557b0;
+        }
+
+        /* ===== 支付方式版块 ===== */
+        .finance-payment {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .payment-method {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            min-width: 200px;
+            flex-shrink: 0;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .payment-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+
+
+        .payment-title {
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .payment-qr {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .payment-qr img {
+            max-width: 120px;
+            height: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .payment-info {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .payment-info strong {
+            color: var(--primary-dark);
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        .customer-service {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .customer-service a {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .customer-service a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
+        }
+
+        /* ===== 响应式布局 ===== */
+        @media screen and (max-width: 1200px) {
+            .container {
+                padding: 0 1rem;
+            }
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        @media screen and (max-width: 992px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .process-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 300px;
+            }
+            .finance-docs {
+                grid-template-columns: 1fr;
+            }
+            .process-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 图标动画效果 */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        /* 标题图标悬停效果 */
+        .title-icon:hover {
+            transform: scale(1.2) rotate(5deg);
+            transition: all 0.3s ease;
+        }
+        
+        /* 流程图标悬停效果 */
+        .process-icon:hover {
+            animation: float 2s ease-in-out infinite;
+        }
+        
+        /* 文档图标悬停效果 */
+        .doc-icon:hover {
+            transform: rotate(360deg);
+            transition: transform 0.6s ease;
+        }
+        
+        /* 支付图标悬停效果 */
+        .payment-icon:hover {
+            transform: scale(1.2);
+            transition: transform 0.3s ease;
+        }
+        
+        /* 数据卡片图标特殊效果 */
+        .metric-card:hover .metric-icon {
+            animation: float 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1 style="margin: 0;">金至投资</h1>
+            <div class="subtitle" style="margin-left: 10px; position: relative; top: 0.2em;">专业金融可视化投资平台</div>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 1rem;">
+    
+                <a href="data-editor.html" style="background: rgba(255, 255, 255, 0.2);
+                          color: white;
+                          padding: 8px 16px;
+                          border-radius: 4px;
+                          text-decoration: none;
+                          display: inline-block;
+                          font-size: 0.9rem;
+                          border: 1px solid rgba(255, 255, 255, 0.3);
+                          transition: all 0.3s ease;">
+                    <i class="fas fa-edit"></i> 数据编辑器
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container" style="padding-top: 80px;">
+        <!-- 金至投资数据版块 -->
+        <section>
+        <h1 class="section-title">金至投资数据</h1>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">💰</span>
+                    总资产管理规模
+                </div>
+                    <div class="metric-value" id="aum-value">¥10,500,000</div>
+                    <div class="metric-change change-positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="aum-change">5.2%</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">🏦</span>
+                    融资总额
+                </div>
+                    <div class="metric-value" id="financing-value">¥5,200,000</div>
+                    <div class="metric-change change-positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="financing-change">3.1%</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">💼</span>
+                    资本总额
+                </div>
+                    <div class="metric-value" id="capital-value">¥8,300,000</div>
+                    <div class="metric-change change-positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="capital-change">2.8%</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                <div class="metric-title">
+                    <span class="metric-icon">👥</span>
+                    客户数量
+                </div>
+                    <div class="metric-value" id="clients-value">156</div>
+                    <div class="metric-change change-positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="clients-change">12</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图表展示区域 -->
+        <section>
+            <div class="chart-container" id="performanceChart"></div>
+        </section>
+        
+        <!-- 金至投资公告版块 -->
+        <section class="finance-announcements">
+        <h2 class="section-title">金至投资公告</h2>
+            
+            <div class="finance-docs">
+                <div class="finance-doc">
+                    <div class="doc-header">
+                        <h3 class="doc-title">
+                            <i class="fas fa-file-contract doc-icon"></i>
+                            融资协议
+                        </h3>
+                        <span class="doc-badge">重要</span>
+                    </div>
+                    <p class="doc-desc">金至投资最新融资协议文档，包含完整条款与投资说明</p>
+                    <div class="doc-footer">
+                        <a href="https://www.kdocs.cn/l/cvsurW5sz6B9" target="_blank" class="doc-button">
+                            查看协议
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="finance-doc">
+                    <div class="doc-header">
+                        <h3 class="doc-title">
+                            <i class="fas fa-chart-bar doc-icon"></i>
+                            投融资损益财务报表
+                        </h3>
+                        <span class="doc-badge">最新</span>
+                    </div>
+                    <p class="doc-desc">金至投资公司投融资损益财务报表</p>
+                    <div class="doc-footer">
+                        <a href="https://www.kdocs.cn/l/cdkZPdIrbFg1" target="_blank" class="doc-button">
+                            查看报告
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 投资流程版块 -->
+        <section class="finance-process" style="margin: 4rem 0; padding: 2rem; background: #f8f9fa; border-radius: 12px;">
+            <h2 class="section-title">投资流程</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 2rem;">
+                <!-- 模块1 -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#1a3e72"></path>
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#1a3e72"></path>
+                        </svg>
+                        <h3 style="color: #1a3e72; margin: 0;">投资产品介绍</h3>
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">了解我们的投资产品和服务，选择最适合您的方案。</p>
+                    <a href="https://www.kdocs.cn/l/cvsurW5sz6B9" target="_blank" style="background: #1a73e8; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">投资协议</a>
+                </div>
+
+                <!-- 模块2 -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="#1a3e72"></path>
+                            <path d="M7 12H17V14H7V12ZM7 7H17V9H7V7ZM7 17H14V19H7V17Z" fill="#1a3e72"></path>
+                        </svg>
+                        <h3 style="color: #1a3e72; margin: 0;">确定投资意向</h3>
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">确认您的投资意向，我们的专业顾问将为您服务。</p>
+                    <a href="https://meeting.tencent.com/p/4507390086" target="_blank" style="background: #1a73e8; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">在线咨询</a>
+                </div>
+
+                <!-- 模块3 -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 100%;">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="#1a3e72"></path>
+                            <path d="M7 10H17V12H7V10ZM7 14H17V16H7V14ZM7 6H17V8H7V6Z" fill="#1a3e72"></path>
+                        </svg>
+                        <h3 style="color: #1a3e72; margin: 0;">投资完成</h3>
+                    </div>
+                    <p style="margin-bottom: 1.5rem; flex-grow: 1;">签订合同并完成资金划转，正式成为我们的投资客户。</p>
+                    <div style="margin-top: auto;">
+                        <a href="https://meeting.tencent.com/p/4507390086" target="_blank" style="background: #1a73e8; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">签订合同</a>
+                    </div>
+                </div>
+
+                <!-- 模块3 -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="#1a3e72"></path>
+                            <path d="M7 10H17V12H7V10ZM7 14H17V16H7V14ZM7 6H17V8H7V6Z" fill="#1a3e72"></path>
+                        </svg>
+                        <h3 style="color: #1a3e72; margin: 0;">投资数据更新</h3>
+                    </div>
+                    <p style="margin-bottom: 1.5rem;">查看您的投资收益报表，了解投资表现。</p>
+                    <a href="https://www.kdocs.cn/l/cdkZPdIrbFg1" target="_blank" style="background: #1a73e8; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">收益报表</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 支付方式版块 -->
+        <section class="finance-payment" style="margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; font-size: 0.85rem;">
+            <h2 class="section-title" style="font-size: 1.3rem; margin-bottom: 1rem;">支付方式</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; padding: 0.5rem 0;">
+                <!-- 网银 -->
+                <div class="payment-method" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-width: 160px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-university me-2" style="color: #1a73e8;"></i>
+                        <h3 style="color: #1a3e72; margin: 0; font-size: 1rem;">网银支付</h3>
+                    </div>
+                    <div id="bank-upload" style="display: none;">
+                        <input type="file" id="bank-qr" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" onclick="uploadQR('bank')">上传二维码</button>
+                    </div>
+                    <div id="bank-qr-display" style="margin-bottom: 0.6rem;">
+                        <img src="images/bank_qrcode.jpg" alt="网银二维码" style="max-width: 70px; height: auto; border: 1px solid #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><rect width='100%' height='100%' fill='%23f5f5f5'/><text x='50%' y='50%' font-family='Arial' font-size='8' text-anchor='middle' dominant-baseline='middle' fill='%23333'>网银二维码</text></svg>'">
+                    </div>
+                    <div id="bank-info" class="mt-1" style="font-size: 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; line-height: 1.2; padding-right: 0;">
+                        <div><strong>账号:</strong> 6228480018354598577</div>
+                        <div><strong>开户行:</strong> 农行北京密云行宫支行</div>
+                        <div><strong>姓名:</strong> 孙向阳</div>
+                    </div>
+                </div>
+
+                <!-- 数字人民币 -->
+                <div class="payment-method" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-width: 160px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-yen-sign me-2" style="color: #4CAF50;"></i>
+                        <h3 style="color: #1a3e72; margin: 0; font-size: 1rem;">数字人民币</h3>
+                    </div>
+                    <div id="digital-yuan-upload" style="display: none;">
+                        <input type="file" id="digital-yuan-qr" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" onclick="uploadQR('digital-yuan')">上传二维码</button>
+                    </div>
+                    <div id="digital-yuan-qr-display" style="margin-bottom: 0.6rem;">
+                        <img src="images/digital_qrcode.jpg" alt="数字人民币二维码" style="max-width: 70px; height: auto; border: 1px solid #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><rect width='100%' height='100%' fill='%23f5f5f5'/><text x='50%' y='50%' font-family='Arial' font-size='8' text-anchor='middle' dominant-baseline='middle' fill='%23333'>数字人民币二维码</text></svg>'">
+                    </div>
+                    <div id="digital-yuan-info" class="mt-1" style="font-size: 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; line-height: 1.2; padding-right: 0;">
+                        <div><strong>账号:</strong> 0041005416090652</div>
+                    </div>
+                </div>
+
+                <!-- 支付宝 -->
+                <div class="payment-method" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-width: 160px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fab fa-alipay me-2" style="color: #00a0e9;"></i>
+                        <h3 style="color: #1a3e72; margin: 0; font-size: 1rem;">支付宝</h3>
+                    </div>
+                    <div id="alipay-upload" style="display: none;">
+                        <input type="file" id="alipay-qr" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" onclick="uploadQR('alipay')">上传二维码</button>
+                    </div>
+                    <div id="alipay-qr-display" style="margin-bottom: 0.6rem;">
+                        <img src="images/alipay_qrcode.jpg" alt="支付宝二维码" style="max-width: 70px; height: auto; border: 1px solid #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><rect width='100%' height='100%' fill='%23f5f5f5'/><text x='50%' y='50%' font-family='Arial' font-size='8' text-anchor='middle' dominant-baseline='middle' fill='%23333'>支付宝二维码</text></svg>'">
+                    </div>
+                    <div id="alipay-info" class="mt-1" style="font-size: 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; line-height: 1.2; padding-right: 0;">
+                        <div><strong>账号:</strong> 13293283690</div>
+                        <div><strong>姓名:</strong> 孙向阳</div>
+                    </div>
+                </div>
+
+                <!-- 微信 -->
+                <div class="payment-method" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-width: 160px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fab fa-weixin me-2" style="color: #07C160;"></i>
+                        <h3 style="color: #1a3e72; margin: 0; font-size: 1rem;">微信支付</h3>
+                    </div>
+                    <div id="wechat-upload" style="display: none;">
+                        <input type="file" id="wechat-qr" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" onclick="uploadQR('wechat')">上传二维码</button>
+                    </div>
+                    <div id="wechat-qr-display" style="margin-bottom: 0.6rem;">
+                        <img src="images/wechat_qrcode.jpg" alt="微信二维码" style="max-width: 70px; height: auto; border: 1px solid #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><rect width='100%' height='100%' fill='%23f5f5f5'/><text x='50%' y='50%' font-family='Arial' font-size='8' text-anchor='middle' dominant-baseline='middle' fill='%23333'>微信二维码</text></svg>'">
+                    </div>
+                    <div id="wechat-info" class="mt-1" style="font-size: 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; line-height: 1.2; padding-right: 0;">
+                        <div><strong>账号:</strong> 13293283690</div>
+                        <div><strong>姓名:</strong> 孙向阳</div>
+                    </div>
+                </div>
+
+                <!-- 数字货币 -->
+                <div class="payment-method" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-width: 160px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-coins me-2" style="color: #FF9500;"></i>
+                        <h3 style="color: #1a3e72; margin: 0; font-size: 1rem;">数字货币</h3>
+                    </div>
+                    <div id="crypto-upload" style="display: none;">
+                        <input type="file" id="crypto-qr" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" onclick="uploadQR('crypto')">上传二维码</button>
+                    </div>
+                    <div id="crypto-qr-display" style="margin-bottom: 0.6rem;">
+                        <img src="images/crypto_qrcode.jpg" alt="数字货币二维码" style="max-width: 70px; height: auto; border: 1px solid #eee; border-radius: 4px;" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><rect width='100%' height='100%' fill='%23f5f5f5'/><text x='50%' y='50%' font-family='Arial' font-size='8' text-anchor='middle' dominant-baseline='middle' fill='%23333'>数字货币二维码</text></svg>'">
+                    </div>
+                    <div id="crypto-info" class="mt-1" style="font-size: 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; line-height: 1.2; padding-right: 0;">
+                        <div><strong>地址:</strong> TC1waLENUrVDMz8npvJicyYzKW3oWowYRR</div>
+                        <div><strong>主网:</strong> USDT (TRC20)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <p>© 2025 金至投资 版权所有</p>
+        <div style="position: fixed; bottom: 100px; right: 20px;">
+            <a href="https://meeting.tencent.com/p/4507390086" target="_blank" style="background: linear-gradient(135deg, #1a73e8, #0d47a1);
+                      color: white;
+                      padding: 12px 24px;
+                      border-radius: 30px;
+                      text-decoration: none;
+                      display: inline-block;
+                      font-weight: 500;
+                      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+                      transition: all 0.3s ease;
+                      border: none;
+                      cursor: pointer;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 17.5C7.17 17.5 6.5 16.83 6.5 16C6.5 15.17 7.17 14.5 8 14.5C8.83 14.5 9.5 15.17 9.5 16C9.5 16.83 8.83 17.5 8 17.5ZM16.5 16C16.5 15.17 15.83 14.5 15 14.5C14.17 14.5 13.5 15.17 13.5 16C13.5 16.83 14.17 17.5 15 17.5C15.83 17.5 15.5 16.83 15.5 16C15.5 15.17 15.83 14.5 16 14.5Z" fill="white"></path>
+                    </svg>
+                    在线客服
+                </span>
+            </a>
+        </div>
+    </footer>
+
+        <script>
+        // 数据加载函数 - 优先读取data.json文件，然后读取本地保存的数据
+        async function loadData() {
+            try {
+                // 优先尝试读取data.json文件
+                const response = await fetch(`data.json?t=${Date.now()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('成功读取data.json文件:', data);
+                    updateMetricsFromData(data.stats);
+                    return;
+                }
+            } catch (error) {
+                console.log('读取data.json失败，尝试使用本地数据:', error);
+            }
+            
+            // 如果无法读取data.json，则使用本地保存的数据
+            const savedMetrics = localStorage.getItem('jinzhi-metrics');
+            if (savedMetrics) {
+                try {
+                    const data = JSON.parse(savedMetrics);
+                    console.log('使用本地保存的指标数据:', data);
+                    // 恢复保存的数据
+                    updateMetricDisplay('aum-value', data.aum, true);
+                    updateMetricDisplay('financing-value', data.financing, true);
+                    updateMetricDisplay('capital-value', data.capital, true);
+                    updateMetricDisplay('clients-value', data.clients, false);
+                    
+                    updateChangeDisplay('aum-change', data.aumChange, data.aumChangeType, true);
+                    updateChangeDisplay('financing-change', data.financingChange, data.financingChangeType, true);
+                    updateChangeDisplay('capital-change', data.capitalChange, data.capitalChangeType, true);
+                    updateChangeDisplay('clients-change', data.clientsChange, data.clientsChangeType, false);
+                } catch (e) {
+                    console.error('加载本地保存的指标数据失败:', e);
+                }
+            } else {
+                console.log('没有本地保存的指标数据，使用页面默认值');
+            }
+        }
+        
+        // 从data.json数据更新指标显示
+        function updateMetricsFromData(stats) {
+            if (!stats || !Array.isArray(stats)) return;
+            
+            stats.forEach(stat => {
+                const elementIdMap = {
+                    '总资产管理规模': 'aum',
+                    '融资总额': 'financing', 
+                    '资本总额': 'capital',
+                    '客户数量': 'clients'
+                };
+                
+                const key = elementIdMap[stat.title];
+                if (!key) return;
+                
+                // 更新数值显示
+                const valueElement = document.getElementById(`${key}-value`);
+                if (valueElement) {
+                    if (key === 'clients') {
+                        valueElement.textContent = stat.value;
+                    } else {
+                        // 移除货币符号，只保留数字
+                        const numericValue = stat.value.replace(/[¥,]/g, '');
+                        updateMetricDisplay(`${key}-value`, numericValue, key !== 'clients');
+                    }
+                }
+                
+                // 更新变化率显示
+                const changeElement = document.getElementById(`${key}-change`);
+                if (changeElement) {
+                    let changeValue = stat.change;
+                    let changeType = stat.changeType;
+                    
+                    // 处理变化类型
+                    if (changeType === 'up' || changeType === '上升') {
+                        changeType = 'positive';
+                    } else if (changeType === 'down' || changeType === '下降') {
+                        changeType = 'negative';
+                    } else if (changeType === '增加') {
+                        changeType = 'positive';
+                    } else if (changeType === '减少') {
+                        changeType = 'negative';
+                    }
+                    
+                    // 移除百分比符号
+                    const numericChange = changeValue.replace(/[%，,]/g, '');
+                    updateChangeDisplay(`${key}-change`, numericChange, changeType, key === 'clients' ? false : true);
+                }
+            });
+        }
+        
+        // 更新数值显示
+        function updateMetricDisplay(elementId, value, isCurrency) {
+            const element = document.getElementById(elementId);
+            if (isCurrency) {
+                element.textContent = '¥' + value.toLocaleString();
+            } else {
+                element.textContent = value.toLocaleString();
+            }
+        }
+        
+        // 更新变化率显示
+        function updateChangeDisplay(elementId, changeValue, changeType, isPercentage) {
+            const element = document.getElementById(elementId);
+            const parentElement = element.parentElement;
+            const value = parseFloat(changeValue) || 0;
+            const isPositive = changeType === 'positive';
+            
+            // 格式化变化显示，百分比显示小数点后两位
+            const arrow = isPositive ? '↑' : '↓';
+            const displayValue = isPercentage ? Math.abs(value).toFixed(2) + '%' : Math.abs(value).toLocaleString();
+            const color = isPositive ? '#4CAF50' : '#f44336';
+            
+            // 更新图标和颜色
+            if (isPositive) {
+                parentElement.className = 'metric-change change-positive';
+                parentElement.innerHTML = `<span style="display:inline-flex; align-items:center"><span style="margin-right:4px; color:${color}">${arrow}</span><span style="color:${color}">${displayValue}</span></span>`;
+            } else {
+                parentElement.className = 'metric-change change-negative';
+                parentElement.innerHTML = `<span style="display:inline-flex; align-items:center"><span style="margin-right:4px; color:${color}">${arrow}</span><span style="color:${color}">${displayValue}</span></span>`;
+            }
+        }
+
+        // 上传二维码功能
+        function uploadQR(type) {
+            const input = document.getElementById(`${type}-qr`);
+            const file = input.files[0];
+            
+            if (!file) {
+                alert('请先选择二维码图片');
+                return;
+            }
+
+            // 模拟上传过程
+            setTimeout(() => {
+                // 隐藏上传控件
+                document.getElementById(`${type}-upload`).style.display = 'none';
+                
+                // 显示账户信息
+                document.getElementById(`${type}-info`).style.display = 'block';
+                
+                // 保存上传状态到localStorage
+                const savedData = localStorage.getItem('jinzhi-data') || '{}';
+                const data = JSON.parse(savedData);
+                data.paymentMethods = data.paymentMethods || {};
+                data.paymentMethods[type] = {
+                    uploaded: true,
+                    timestamp: new Date().getTime()
+                };
+                localStorage.setItem('jinzhi-data', JSON.stringify(data));
+                
+                alert(`${type}二维码上传成功`);
+            }, 1000);
+        }
+
+        // 页面加载时检查已上传的二维码
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedData = localStorage.getItem('jinzhi-data');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    if (data.paymentMethods) {
+                        for (const type in data.paymentMethods) {
+                            if (data.paymentMethods[type].uploaded) {
+                                document.getElementById(`${type}-upload`).style.display = 'none';
+                                document.getElementById(`${type}-info`).style.display = 'block';
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('加载支付方式数据失败:', e);
+                }
+            }
+        });
+
+        // 检查数据更新
+        function checkForDataUpdate() {
+            const needsRefresh = localStorage.getItem('jinzhi-needs-refresh');
+            if (needsRefresh === 'true') {
+                const lastUpdate = localStorage.getItem('jinzhi-last-update');
+                if (lastUpdate) {
+                    console.log('检测到数据更新，时间:', new Date(lastUpdate).toLocaleString());
+                    // 清除刷新标记
+                    localStorage.removeItem('jinzhi-needs-refresh');
+                    
+                    // 显示更新提示
+                    showUpdateNotification('数据已从编辑器更新');
+                }
+            }
+            
+
+        }
+
+
+
+        // 显示更新通知
+        function showUpdateNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #27ae60, #2ecc71);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+                z-index: 2000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后移除通知
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // ECharts图表初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否需要刷新数据
+            checkForDataUpdate();
+            loadData();
+            const chartDom = document.getElementById('performanceChart');
+            if (!chartDom) return;
+            
+            // 初始化图表
+            const chart = echarts.init(chartDom);
+            
+            // 优先从localStorage读取本地保存的数据
+            let chartData = [];
+            
+            const savedChartData = localStorage.getItem('jinzhi-chart-data');
+            if (savedChartData) {
+                try {
+                    chartData = JSON.parse(savedChartData);
+                    console.log('使用本地保存的图表数据:', chartData.length, '条记录');
+                } catch (e) {
+                    console.error('加载本地图表数据失败，使用默认数据:', e);
+                    chartData = [
+                        { date: '2023-01-15', financing: 300000, capital: 400000 },
+                        { date: '2023-02-15', financing: 350000, capital: 450000 },
+                        { date: '2023-03-15', financing: 400000, capital: 500000 },
+                        { date: '2023-04-15', financing: 450000, capital: 550000 },
+                        { date: '2023-05-15', financing: 500000, capital: 600000 },
+                        { date: '2023-06-15', financing: 520000, capital: 630000 }
+                    ];
+                }
+            } else {
+                console.log('没有本地保存的图表数据，使用默认数据');
+                chartData = [
+                    { date: '2023-01-15', financing: 300000, capital: 400000 },
+                    { date: '2023-02-15', financing: 350000, capital: 450000 },
+                    { date: '2023-03-15', financing: 400000, capital: 500000 },
+                    { date: '2023-04-15', financing: 450000, capital: 550000 },
+                    { date: '2023-05-15', financing: 500000, capital: 600000 },
+                    { date: '2023-06-15', financing: 520000, capital: 630000 }
+                ];
+            }
+            
+            // 图表配置选项
+            const option = {
+                title: {
+                    text: '融资总额和资本总额趋势预览',
+                    left: 'center',
+                    textStyle: {
+                        color: '#1a3e72',
+                        fontSize: 16
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#1a3e72'
+                        }
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(item => {
+                            result += `${item.marker} ${item.seriesName}: ¥${item.value.toLocaleString()}<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: ['融资总额', '资本总额'],
+                    bottom: 10,
+                    textStyle: {
+                        color: '#1a3e72',
+                        fontSize: 14
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: chartData.map(item => item.date),
+                    axisLine: {
+                        lineStyle: {
+                            color: '#1a3e72'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#666',
+                        fontSize: 12
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#1a3e72'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#666',
+                        formatter: '¥{value}',
+                        fontSize: 12
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '融资总额',
+                        type: 'line',
+                        data: chartData.map(item => item.financing),
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#1a73e8'
+                        },
+                        itemStyle: {
+                            color: '#1a73e8'
+                        }
+                    },
+                    {
+                        name: '资本总额',
+                        type: 'line',
+                        data: chartData.map(item => item.capital),
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#00b4d8'
+                        },
+                        itemStyle: {
+                            color: '#00b4d8'
+                        }
+                    }
+                ]
+            };
+            
+            // 设置图表选项
+            chart.setOption(option);
+            
+            // 响应式调整
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+
+
+        });
+
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>

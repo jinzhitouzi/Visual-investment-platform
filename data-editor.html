@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金至投资数据编辑器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* ===== 全局样式 ===== */
+        :root {
+            /* 专业金融配色方案 */
+            --primary-dark: #0a1f44;
+            --primary: #1a3e72;
+            --secondary: #3d5a80;
+            --accent: #00b4d8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --border: rgba(0,0,0,0.08);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-width: 1200px;
+        }
+
+        /* ===== 头部样式 ===== */
+        header {
+            background: rgba(255, 255, 255, 0.98);
+            color: var(--primary-dark);
+            padding: 1rem 2rem;
+            height: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 1px;
+            color: var(--primary-dark);
+        }
+        
+        .logo span {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+
+
+        /* ===== 操作按钮区域 ===== */
+        .action-bar {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== 数据版块编辑区域 ===== */
+        .metrics-editor {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-editor-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .metric-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-group .form-group {
+            flex: 1;
+        }
+
+        /* ===== 图表数据编辑区域 ===== */
+        .chart-editor {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .data-table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* ===== 状态提示 ===== */
+        .status-message {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .status-success {
+            background: var(--success);
+        }
+
+        .status-error {
+            background: var(--danger);
+        }
+
+        .status-warning {
+            background: var(--warning);
+        }
+
+        .status-show {
+            transform: translateX(0);
+        }
+
+        /* ===== 添加按钮容器 ===== */
+        .add-button-container {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+            border: 2px dashed var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .add-button-container:hover {
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .add-button-container .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .add-button-container .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 62, 114, 0.3);
+        }
+
+        /* ===== 底部操作栏 ===== */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .left-buttons, .right-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 2rem 120px 2rem; /* 增加底部padding为底部按钮栏留空间 */
+        }
+
+        /* ===== 响应式布局 ===== */
+        @media screen and (max-width: 1200px) {
+            .metrics-editor {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-bar-content {
+                justify-content: center;
+            }
+            
+            .left-buttons, .right-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                金至<span>投资</span>数据编辑器
+            </div>
+            <div>
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    返回主页
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 数据版块编辑 -->
+        <section class="metrics-editor">
+            <!-- 总资产管理规模 -->
+            <div class="metric-editor-card">
+                <div class="metric-header">
+                    <span class="metric-icon">💰</span>
+                    <h3 class="metric-title">总资产管理规模</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前数值 (¥)</label>
+                    <input type="number" class="form-control" id="aum-value" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                <div class="form-group">
+                    <label class="form-label">变化率 (%)</label>
+                    <input type="number" class="form-control" id="aum-change" step="0.01">
+                </div>
+                    <div class="form-group">
+                        <label class="form-label">变化类型</label>
+                        <select class="form-control" id="aum-change-type">
+                            <option value="positive">上升</option>
+                            <option value="negative">下降</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 融资总额 -->
+            <div class="metric-editor-card">
+                <div class="metric-header">
+                    <span class="metric-icon">🏦</span>
+                    <h3 class="metric-title">融资总额</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前数值 (¥)</label>
+                    <input type="number" class="form-control" id="financing-value" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                <div class="form-group">
+                    <label class="form-label">变化率 (%)</label>
+                    <input type="number" class="form-control" id="financing-change" step="0.01">
+                </div>
+                    <div class="form-group">
+                        <label class="form-label">变化类型</label>
+                        <select class="form-control" id="financing-change-type">
+                            <option value="positive">上升</option>
+                            <option value="negative">下降</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资本总额 -->
+            <div class="metric-editor-card">
+                <div class="metric-header">
+                    <span class="metric-icon">💼</span>
+                    <h3 class="metric-title">资本总额</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前数值 (¥)</label>
+                    <input type="number" class="form-control" id="capital-value" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                <div class="form-group">
+                    <label class="form-label">变化率 (%)</label>
+                    <input type="number" class="form-control" id="capital-change" step="0.01">
+                </div>
+                    <div class="form-group">
+                        <label class="form-label">变化类型</label>
+                        <select class="form-control" id="capital-change-type">
+                            <option value="positive">上升</option>
+                            <option value="negative">下降</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 客户数量 -->
+            <div class="metric-editor-card">
+                <div class="metric-header">
+                    <span class="metric-icon">👥</span>
+                    <h3 class="metric-title">客户数量</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前数量</label>
+                    <input type="number" class="form-control" id="clients-value" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <div class="form-group">
+                        <label class="form-label">变化数量</label>
+                        <input type="number" class="form-control" id="clients-change" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">变化类型</label>
+                        <select class="form-control" id="clients-change-type">
+                            <option value="positive">增加</option>
+                            <option value="negative">减少</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图表数据编辑 -->
+        <section class="chart-editor">
+            <div class="chart-controls">
+                <h2>趋势图表数据编辑</h2>
+            </div>
+
+            <div class="chart-container" id="chartPreview"></div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="chartDataTable">
+                    <thead>
+                        <tr>
+                            <th>日期 (年-月-日)</th>
+                            <th>融资总额 (¥)</th>
+                            <th>资本总额 (¥)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chartDataBody">
+                        <!-- 数据行将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="add-button-container" style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="addChartDataPoint()">
+                    <i class="fas fa-plus"></i>
+                    添加数据点
+                </button>
+            </div>
+        </section>
+
+        <!-- 底部操作按钮栏 -->
+        <div class="bottom-action-bar">
+            <div class="action-bar-content">
+                <div class="left-buttons">
+                    <button class="btn btn-success" onclick="saveAllData()">
+                        <i class="fas fa-save"></i>
+                        保存所有数据
+                    </button>
+                    <button class="btn btn-primary" onclick="updateToMainPage()">
+                        <i class="fas fa-sync-alt"></i>
+                        更新到主页
+                    </button>
+                </div>
+                <div class="right-buttons">
+                    <button class="btn btn-primary" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        导出数据
+                    </button>
+                    <button class="btn btn-primary" onclick="importData()">
+                        <i class="fas fa-upload"></i>
+                        导入数据
+                    </button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="handleImport(event)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态提示 -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <script>
+        // 初始化图表数据 - 将在loadSavedData中从localStorage加载
+        let chartData = [];
+
+        let chart = null;
+
+        // 测试localStorage是否可用
+        function testLocalStorage() {
+            try {
+                const testKey = 'test-jinzhi-storage';
+                localStorage.setItem(testKey, 'test-value');
+                const testValue = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                if (testValue === 'test-value') {
+                    console.log('localStorage测试通过');
+                    return true;
+                } else {
+                    console.error('localStorage测试失败：读写不一致');
+                    return false;
+                }
+            } catch (error) {
+                console.error('localStorage不可用:', error);
+                return false;
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('页面开始加载...');
+            
+            // 测试localStorage
+            if (!testLocalStorage()) {
+                showStatus('localStorage不可用，数据无法保存！', 'error');
+                return;
+            }
+            
+            await loadSavedData();
+            initChart();
+            updateDataTable();
+            
+            // 为所有输入框添加变化监听，实时保存
+            const inputs = document.querySelectorAll('input[type="number"], input[type="date"], select');
+            console.log('找到输入框数量:', inputs.length);
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    console.log('检测到输入变化，自动保存');
+                    saveAllData();
+                });
+            });
+            
+            // 监听图表数据变化
+            const chartInputs = document.querySelectorAll('#chartDataBody input');
+            chartInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    console.log('检测到图表数据变化');
+                });
+            });
+            
+            // 定期自动保存（每30秒）
+            setInterval(() => {
+                console.log('定期自动保存');
+                saveAllData();
+            }, 30000);
+            
+            console.log('页面初始化完成');
+        });
+
+        // 加载保存的数据 - 优先从localStorage读取，没有才使用默认值
+        async function loadSavedData() {
+            console.log('数据编辑器：开始加载数据');
+            console.log('localStorage检查 - jinzhi-metrics:', localStorage.getItem('jinzhi-metrics'));
+            console.log('localStorage检查 - jinzhi-chart-data:', localStorage.getItem('jinzhi-chart-data'));
+            
+            // 优先从localStorage读取指标数据
+            const savedMetrics = localStorage.getItem('jinzhi-metrics');
+            if (savedMetrics) {
+                try {
+                    const data = JSON.parse(savedMetrics);
+                    console.log('数据编辑器：使用本地保存的指标数据', data);
+                    
+                    // 恢复指标数据 - 使用setTimeout确保DOM完全加载
+                    setTimeout(() => {
+                        const aumValue = document.getElementById('aum-value');
+                        const aumChange = document.getElementById('aum-change');
+                        const aumChangeType = document.getElementById('aum-change-type');
+                        
+                        const financingValue = document.getElementById('financing-value');
+                        const financingChange = document.getElementById('financing-change');
+                        const financingChangeType = document.getElementById('financing-change-type');
+                        
+                        const capitalValue = document.getElementById('capital-value');
+                        const capitalChange = document.getElementById('capital-change');
+                        const capitalChangeType = document.getElementById('capital-change-type');
+                        
+                        const clientsValue = document.getElementById('clients-value');
+                        const clientsChange = document.getElementById('clients-change');
+                        const clientsChangeType = document.getElementById('clients-change-type');
+                        
+                        if (aumValue) aumValue.value = data.aum || 206695;
+                        if (aumChange) aumChange.value = (data.aumChange || 5.2).toFixed(2);
+                        if (aumChangeType) aumChangeType.value = data.aumChangeType || 'positive';
+                        
+                        if (financingValue) financingValue.value = data.financing || 134160;
+                        if (financingChange) financingChange.value = (data.financingChange || 3.1).toFixed(2);
+                        if (financingChangeType) financingChangeType.value = data.financingChangeType || 'positive';
+                        
+                        if (capitalValue) capitalValue.value = data.capital || 1000;
+                        if (capitalChange) capitalChange.value = (data.capitalChange || 2.8).toFixed(2);
+                        if (capitalChangeType) capitalChangeType.value = data.capitalChangeType || 'positive';
+                        
+                        if (clientsValue) clientsValue.value = data.clients || 9;
+                        if (clientsChange) clientsChange.value = data.clientsChange || 12;
+                        if (clientsChangeType) clientsChangeType.value = data.clientsChangeType || 'positive';
+                        
+                        console.log('表单数据已恢复');
+                    }, 100);
+                    
+                    console.log('指标数据已恢复到表单');
+                } catch (e) {
+                    console.error('数据编辑器：加载本地保存的指标数据失败:', e);
+                }
+            } else {
+                console.log('数据编辑器：没有本地保存的指标数据，使用默认值');
+            }
+
+            // 从localStorage读取图表数据
+            const savedChartData = localStorage.getItem('jinzhi-chart-data');
+            if (savedChartData) {
+                try {
+                    chartData = JSON.parse(savedChartData);
+                    console.log('数据编辑器：使用本地保存的图表数据', chartData.length, '条记录');
+                } catch (e) {
+                    console.error('数据编辑器：加载本地图表数据失败:', e);
+                    // 使用默认数据
+                    chartData = [
+                        { date: '2020-01-28', financing: 10750, capital: 9376 },
+                        { date: '2020-08-25', financing: 22600, capital: 235 },
+                        { date: '2023-03-01', financing: 43029, capital: 708 },
+                        { date: '2024-12-01', financing: 70129, capital: 32176 },
+                        { date: '2025-03-01', financing: 145515, capital: 157399 },
+                        { date: '2025-04-01', financing: 126792, capital: 628218 },
+                        { date: '2025-11-29', financing: 134160, capital: 1000 },
+                        { date: '2025-12-10', financing: 206695, capital: -5000 }
+                    ];
+                }
+            } else {
+                console.log('数据编辑器：没有本地保存的图表数据，使用默认数据');
+                // 使用默认数据
+                chartData = [
+                    { date: '2020-01-28', financing: 10750, capital: 9376 },
+                    { date: '2020-08-25', financing: 22600, capital: 235 },
+                    { date: '2023-03-01', financing: 43029, capital: 708 },
+                    { date: '2024-12-01', financing: 70129, capital: 32176 },
+                    { date: '2025-03-01', financing: 145515, capital: 157399 },
+                    { date: '2025-04-01', financing: 126792, capital: 628218 },
+                    { date: '2025-11-29', financing: 134160, capital: 1000 },
+                    { date: '2025-12-10', financing: 206695, capital: -5000 }
+                ];
+            }
+            
+            console.log('数据加载完成');
+        }
+
+        // 初始化图表
+        function initChart() {
+            const chartDom = document.getElementById('chartPreview');
+            if (!chartDom) return;
+            
+            chart = echarts.init(chartDom);
+            
+            const option = {
+                title: {
+                    text: '融资总额和资本总额趋势预览',
+                    left: 'center',
+                    textStyle: {
+                        color: '#1a3e72',
+                        fontSize: 16
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(item => {
+                            result += `${item.marker} ${item.seriesName}: ¥${item.value.toLocaleString()}<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: ['融资总额', '资本总额'],
+                    bottom: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: chartData.map(item => item.date)
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '¥{value}'
+                    }
+                },
+                series: [
+                    {
+                        name: '融资总额',
+                        type: 'line',
+                        data: chartData.map(item => item.financing),
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#1a73e8'
+                        },
+                        itemStyle: {
+                            color: '#1a73e8'
+                        }
+                    },
+                    {
+                        name: '资本总额',
+                        type: 'line',
+                        data: chartData.map(item => item.capital),
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#00b4d8'
+                        },
+                        itemStyle: {
+                            color: '#00b4d8'
+                        }
+                    }
+                ]
+            };
+            
+            chart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                if (chart) chart.resize();
+            });
+        }
+
+        // 更新图表
+        function updateChart() {
+            if (!chart) return;
+            
+            chart.setOption({
+                xAxis: {
+                    data: chartData.map(item => item.date)
+                },
+                series: [
+                    {
+                        data: chartData.map(item => item.financing)
+                    },
+                    {
+                        data: chartData.map(item => item.capital)
+                    }
+                ]
+            });
+        }
+
+        // 更新数据表格
+        function updateDataTable() {
+            const tbody = document.getElementById('chartDataBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            chartData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="date" value="${item.date}" onchange="updateChartDataPoint(${index}, 'date', this.value)"></td>
+                    <td><input type="number" value="${item.financing}" min="0" onchange="updateChartDataPoint(${index}, 'financing', this.value)"></td>
+                    <td><input type="number" value="${item.capital}" min="0" onchange="updateChartDataPoint(${index}, 'capital', this.value)"></td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-danger btn-small" onclick="deleteChartDataPoint(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 添加图表数据点
+        function addChartDataPoint() {
+            // 获取当前日期，格式为 YYYY-MM-DD
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10);
+            
+            chartData.push({
+                date: todayStr,
+                financing: 200000,
+                capital: 100000
+            });
+            
+            updateChart();
+            updateDataTable();
+            showStatus('已添加新数据点', 'success');
+        }
+
+        // 更新图表数据点
+        function updateChartDataPoint(index, field, value) {
+            if (field === 'date') {
+                chartData[index].date = value;
+            } else if (field === 'financing') {
+                chartData[index].financing = parseInt(value) || 0;
+            } else if (field === 'capital') {
+                chartData[index].capital = parseInt(value) || 0;
+            }
+            
+            updateChart();
+        }
+
+        // 删除图表数据点
+        function deleteChartDataPoint(index) {
+            if (chartData.length <= 1) {
+                showStatus('至少需要保留一个数据点', 'error');
+                return;
+            }
+            
+            chartData.splice(index, 1);
+            updateChart();
+            updateDataTable();
+            showStatus('数据点已删除', 'success');
+        }
+
+        // 保存所有数据
+        function saveAllData() {
+            console.log('=== 开始保存所有数据 ===');
+            
+            try {
+                // 验证localStorage可用性
+                if (!testLocalStorage()) {
+                    showStatus('localStorage不可用，数据无法保存！', 'error');
+                    return;
+                }
+                
+                // 验证所有必需的元素是否存在
+                const elements = [
+                    'aum-value', 'aum-change', 'aum-change-type',
+                    'financing-value', 'financing-change', 'financing-change-type',
+                    'capital-value', 'capital-change', 'capital-change-type',
+                    'clients-value', 'clients-change', 'clients-change-type'
+                ];
+                
+                console.log('验证DOM元素...');
+                for (let id of elements) {
+                    const element = document.getElementById(id);
+                    if (!element) {
+                        console.error(`找不到元素: ${id}`);
+                        showStatus(`保存失败：找不到元素 ${id}`, 'error');
+                        return;
+                    }
+                    console.log(`✓ 找到元素: ${id}, 值: ${element.value}`);
+                }
+                
+                console.log('所有元素验证通过，开始收集数据...');
+                
+                // 收集指标数据
+                const metricsData = {
+                    aum: parseInt(document.getElementById('aum-value').value) || 0,
+                    aumChange: parseFloat(document.getElementById('aum-change').value) || 0,
+                    aumChangeType: document.getElementById('aum-change-type').value,
+                    
+                    financing: parseInt(document.getElementById('financing-value').value) || 0,
+                    financingChange: parseFloat(document.getElementById('financing-change').value) || 0,
+                    financingChangeType: document.getElementById('financing-change-type').value,
+                    
+                    capital: parseInt(document.getElementById('capital-value').value) || 0,
+                    capitalChange: parseFloat(document.getElementById('capital-change').value) || 0,
+                    capitalChangeType: document.getElementById('capital-change-type').value,
+                    
+                    clients: parseInt(document.getElementById('clients-value').value) || 0,
+                    clientsChange: parseInt(document.getElementById('clients-change').value) || 0,
+                    clientsChangeType: document.getElementById('clients-change-type').value
+                };
+                
+                console.log('收集到的指标数据:', metricsData);
+                console.log('图表数据:', chartData);
+                
+                // 清除旧数据
+                localStorage.removeItem('jinzhi-metrics');
+                localStorage.removeItem('jinzhi-chart-data');
+                console.log('已清除旧数据');
+                
+                // 保存到localStorage
+                const metricsString = JSON.stringify(metricsData);
+                const chartString = JSON.stringify(chartData);
+                
+                localStorage.setItem('jinzhi-metrics', metricsString);
+                localStorage.setItem('jinzhi-chart-data', chartString);
+                
+                console.log('数据已写入localStorage');
+                console.log('metricsString长度:', metricsString.length);
+                console.log('chartString长度:', chartString.length);
+                
+                // 立即验证保存是否成功
+                const savedMetrics = localStorage.getItem('jinzhi-metrics');
+                const savedChart = localStorage.getItem('jinzhi-chart-data');
+                
+                console.log('保存后验证 - 指标数据存在:', !!savedMetrics);
+                console.log('保存后验证 - 图表数据存在:', !!savedChart);
+                console.log('保存后验证 - 指标数据内容:', savedMetrics);
+                console.log('保存后验证 - 图表数据内容:', savedChart);
+                
+                if (savedMetrics && savedChart && savedMetrics.length > 0 && savedChart.length > 0) {
+                    console.log('✓ 数据保存成功！localStorage已更新');
+                    showStatus('所有数据已保存成功！', 'success');
+                    
+                    // 5秒后再次验证
+                    setTimeout(() => {
+                        const verifyMetrics = localStorage.getItem('jinzhi-metrics');
+                        const verifyChart = localStorage.getItem('jinzhi-chart-data');
+                        console.log('5秒后验证 - 指标数据仍存在:', !!verifyMetrics);
+                        console.log('5秒后验证 - 图表数据仍存在:', !!verifyChart);
+                    }, 5000);
+                    
+                } else {
+                    console.error('✗ 数据保存失败');
+                    showStatus('数据保存失败！', 'error');
+                }
+                
+            } catch (error) {
+                console.error('保存数据时发生错误:', error);
+                showStatus(`保存失败：${error.message}`, 'error');
+            }
+            
+            console.log('=== 保存操作结束 ===');
+        }
+
+        // 强制保存数据（更激进的保存方式）
+        function forceSaveData() {
+            console.log('=== 强制保存开始 ===');
+            
+            try {
+                // 清除可能存在的旧数据
+                localStorage.removeItem('jinzhi-metrics');
+                localStorage.removeItem('jinzhi-chart-data');
+                
+                // 收集当前所有数据
+                const metricsData = {
+                    aum: parseInt(document.getElementById('aum-value').value) || 0,
+                    aumChange: parseFloat(document.getElementById('aum-change').value) || 0,
+                    aumChangeType: document.getElementById('aum-change-type').value,
+                    
+                    financing: parseInt(document.getElementById('financing-value').value) || 0,
+                    financingChange: parseFloat(document.getElementById('financing-change').value) || 0,
+                    financingChangeType: document.getElementById('financing-change-type').value,
+                    
+                    capital: parseInt(document.getElementById('capital-value').value) || 0,
+                    capitalChange: parseFloat(document.getElementById('capital-change').value) || 0,
+                    capitalChangeType: document.getElementById('capital-change-type').value,
+                    
+                    clients: parseInt(document.getElementById('clients-value').value) || 0,
+                    clientsChange: parseInt(document.getElementById('clients-change').value) || 0,
+                    clientsChangeType: document.getElementById('clients-change-type').value
+                };
+                
+                console.log('强制保存 - 指标数据:', metricsData);
+                console.log('强制保存 - 图表数据:', chartData);
+                
+                // 多次尝试保存
+                for (let i = 0; i < 3; i++) {
+                    localStorage.setItem('jinzhi-metrics', JSON.stringify(metricsData));
+                    localStorage.setItem('jinzhi-chart-data', JSON.stringify(chartData));
+                    
+                    // 验证
+                    const savedMetrics = localStorage.getItem('jinzhi-metrics');
+                    const savedChart = localStorage.getItem('jinzhi-chart-data');
+                    
+                    if (savedMetrics && savedChart) {
+                        console.log(`强制保存成功（第${i+1}次尝试）`);
+                        showStatus(`数据强制保存成功！`, 'success');
+                        
+                        // 立即验证恢复
+                        console.log('立即验证数据恢复...');
+                        setTimeout(() => {
+                            const verifyMetrics = localStorage.getItem('jinzhi-metrics');
+                            const verifyChart = localStorage.getItem('jinzhi-chart-data');
+                            console.log('验证 - 指标数据存在:', !!verifyMetrics);
+                            console.log('验证 - 图表数据存在:', !!verifyChart);
+                        }, 100);
+                        return;
+                    } else {
+                        console.error(`强制保存失败（第${i+1}次尝试）`);
+                    }
+                }
+                
+                showStatus('强制保存失败！', 'error');
+            } catch (error) {
+                console.error('强制保存时发生错误:', error);
+                showStatus(`强制保存失败：${error.message}`, 'error');
+            }
+            
+            console.log('=== 强制保存结束 ===');
+        }
+
+        // 更新到主页
+        function updateToMainPage() {
+            saveAllData();
+            localStorage.setItem('jinzhi-needs-refresh', 'true');
+            localStorage.setItem('jinzhi-last-update', new Date().toISOString());
+            showStatus('数据已更新到主页！正在跳转...', 'success');
+            setTimeout(() => {
+                window.open('index.html', '_blank');
+            }, 1000);
+        }
+        
+
+
+        
+        
+        
+
+        
+
+        // 导出数据
+        function exportData() {
+            const data = {
+                metrics: {
+                    aum: {
+                        value: parseInt(document.getElementById('aum-value').value) || 0,
+                        change: parseFloat(document.getElementById('aum-change').value) || 0,
+                        changeType: document.getElementById('aum-change-type').value
+                    },
+                    financing: {
+                        value: parseInt(document.getElementById('financing-value').value) || 0,
+                        change: parseFloat(document.getElementById('financing-change').value) || 0,
+                        changeType: document.getElementById('financing-change-type').value
+                    },
+                    capital: {
+                        value: parseInt(document.getElementById('capital-value').value) || 0,
+                        change: parseFloat(document.getElementById('capital-change').value) || 0,
+                        changeType: document.getElementById('capital-change-type').value
+                    },
+                    clients: {
+                        value: parseInt(document.getElementById('clients-value').value) || 0,
+                        change: parseInt(document.getElementById('clients-change').value) || 0,
+                        changeType: document.getElementById('clients-change-type').value
+                    }
+                },
+                chartData: chartData
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `jinzhi-data-${new Date().toISOString().slice(0, 10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showStatus('数据已导出', 'success');
+        }
+
+        // 检查localStorage状态
+        function checkLocalStorageStatus() {
+            console.log('=== localStorage状态检查 ===');
+            
+            // 检查基本存储能力
+            console.log('localStorage可用性:', typeof(Storage) !== "undefined");
+            console.log('localStorage当前大小:', JSON.stringify(localStorage).length, '字符');
+            
+            // 检查具体数据
+            const metrics = localStorage.getItem('jinzhi-metrics');
+            const chartData = localStorage.getItem('jinzhi-chart-data');
+            const needsRefresh = localStorage.getItem('jinzhi-needs-refresh');
+            const lastUpdate = localStorage.getItem('jinzhi-last-update');
+            
+            console.log('jinzhi-metrics存在:', !!metrics);
+            console.log('jinzhi-chart-data存在:', !!chartData);
+            console.log('jinzhi-needs-refresh存在:', !!needsRefresh);
+            console.log('jinzhi-last-update存在:', !!lastUpdate);
+            
+            if (metrics) {
+                try {
+                    const parsed = JSON.parse(metrics);
+                    console.log('解析的指标数据:', parsed);
+                } catch (e) {
+                    console.error('指标数据解析失败:', e);
+                }
+            }
+            
+            if (chartData) {
+                try {
+                    const parsed = JSON.parse(chartData);
+                    console.log('解析的图表数据:', parsed);
+                } catch (e) {
+                    console.error('图表数据解析失败:', e);
+                }
+            }
+            
+            // 显示所有localStorage键
+            console.log('所有localStorage键:');
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                console.log(`  ${key}: ${localStorage.getItem(key)?.substring(0, 100)}...`);
+            }
+            
+            console.log('=== 检查完成 ===');
+            
+            showStatus('localStorage状态已输出到控制台，请按F12查看', 'success');
+        }
+
+        // 导入数据
+        function importData() {
+            document.getElementById('import-file').click();
+        }
+
+        // 处理导入文件
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.metrics) {
+                        // 导入指标数据
+                        if (data.metrics.aum) {
+                            document.getElementById('aum-value').value = data.metrics.aum.value || 206695;
+                            document.getElementById('aum-change').value = data.metrics.aum.change || 5.2;
+                            document.getElementById('aum-change-type').value = data.metrics.aum.changeType || 'positive';
+                        }
+                        
+                        if (data.metrics.financing) {
+                            document.getElementById('financing-value').value = data.metrics.financing.value || 134160;
+                            document.getElementById('financing-change').value = data.metrics.financing.change || 3.1;
+                            document.getElementById('financing-change-type').value = data.metrics.financing.changeType || 'positive';
+                        }
+                        
+                        if (data.metrics.capital) {
+                            document.getElementById('capital-value').value = data.metrics.capital.value || 1000;
+                            document.getElementById('capital-change').value = data.metrics.capital.change || 2.8;
+                            document.getElementById('capital-change-type').value = data.metrics.capital.changeType || 'positive';
+                        }
+                        
+                        if (data.metrics.clients) {
+                            document.getElementById('clients-value').value = data.metrics.clients.value || 9;
+                            document.getElementById('clients-change').value = data.metrics.clients.change || 12;
+                            document.getElementById('clients-change-type').value = data.metrics.clients.changeType || 'positive';
+                        }
+                    }
+                    
+                    if (data.chartData) {
+                        chartData = data.chartData;
+                        updateChart();
+                        updateDataTable();
+                    }
+                    
+                    showStatus('数据导入成功', 'success');
+                } catch (error) {
+                    showStatus('数据格式错误，导入失败', 'error');
+                    console.error('导入数据错误:', error);
+                }
+            };
+            
+            reader.readAsText(file);
+            event.target.value = ''; // 重置文件输入
+        }
+
+        
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = `status-message status-${type} status-show`;
+            
+            setTimeout(() => {
+                statusElement.classList.remove('status-show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
